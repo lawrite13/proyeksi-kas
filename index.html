@@ -59,6 +59,7 @@ header{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:space-between;a
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
 .logo{width:52px;height:52px;border-radius:13px}
 .err{color:var(--neg);font-size:13px;min-height:1.3em}
+.err.ok{color:var(--muted)}
 /* app */
 .layout{display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);gap:16px;align-items:start}
 .col{display:flex;flex-direction:column;gap:16px;min-width:0}
@@ -169,6 +170,20 @@ input.missing{border-color:var(--neg)!important;background:var(--neg-soft)!impor
 .imprt td:first-child,.imprt th:first-child{width:1%}
 .impn{font-size:12.5px;color:var(--ink2);display:flex;flex-direction:column;gap:4px}
 .impn .w{color:var(--warn-ink);background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:8px;padding:6px 8px}
+.hh{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.hh select,.hh input{width:100%}
+.htbl th,.htbl td{padding:6px 4px;font-size:12px}
+.htbl td.num{font-size:11.5px;letter-spacing:-.2px}
+.htbl th:first-child,.htbl td:first-child{white-space:nowrap;padding-right:6px}
+.htbl td.mut{color:var(--muted);font-style:italic}
+.htbl td.gap{color:var(--neg);font-style:italic}
+.htbl tr.sun td{background:var(--grid)}
+.htbl td .sb{white-space:normal;max-width:46vw}
+.htbl tfoot td{font-weight:600;border-top:2px solid var(--line);border-bottom:0}
+.hdel{margin-top:10px;border:1px dashed var(--line);border-radius:10px;padding:8px 10px}
+.hdel>summary{cursor:pointer;font-size:13px;color:var(--ink2)}
+.hdel .hh{margin-top:8px}
+.hchk{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--ink2);margin:0 0 8px}
 .sel{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--muted)}
 .sel select{width:auto;max-width:60%}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -239,6 +254,22 @@ input.missing{border-color:var(--neg)!important;background:var(--neg-soft)!impor
         <div class="panel-h"><h2>Saldo akhir tiap bulan (total)</h2><span class="small muted">Bulan terakhir berhenti di tanggal target</span></div>
         <div class="tw"><table id="tbl"></table></div>
       </div>
+      <div class="panel" id="histPanel">
+        <div class="panel-h"><h2>Riwayat harian</h2><span class="small muted" id="hSub"></span></div>
+        <div class="hh">
+          <label class="f" for="hMon">Bulan<select id="hMon"></select></label>
+          <label class="f" for="hAcc">Rekening<select id="hAcc"></select></label>
+        </div>
+        <label class="hchk" id="hDetWrap"><input type="checkbox" id="hDet" checked> Rincian per rekening</label>
+        <div class="tw"><table class="htbl" id="hTbl"></table></div>
+        <p class="small muted" id="hNote"></p>
+        <details class="hdel" id="hDel" hidden>
+          <summary>Hapus riwayat</summary>
+          <div class="hh"><label class="f" for="hDari">Dari tanggal<input type="date" id="hDari"></label><label class="f" for="hSampai">Sampai tanggal<input type="date" id="hSampai"></label></div>
+          <div class="hh"><label class="f" for="hDelAcc">Rekening<select id="hDelAcc"></select></label><div style="display:flex;align-items:flex-end"><button class="btn" id="hDelBtn" type="button">Hapus</button></div></div>
+          <div class="err" id="hDelMsg" role="alert"></div>
+        </details>
+      </div>
     </section>
 
     <section class="col inputs" aria-label="Data dasar">
@@ -259,9 +290,9 @@ input.missing{border-color:var(--neg)!important;background:var(--neg-soft)!impor
         <details class="imp" id="imp" hidden>
           <summary>Isi dari riwayat harian (impor)</summary>
           <div class="impb">
-            <p class="small muted">Tempel data dari Excel atau Google Sheet (baris pertama berisi judul kolom), atau pilih file CSV. Aplikasi menghitung rata-rata per hari kerja untuk tiap rekening sebagai usulan. Data riwayat tidak disimpan di mana pun, hanya angka rata-ratanya yang masuk ke isian di atas.</p>
+            <p class="small muted">Tempel data dari Excel atau Google Sheet (baris pertama berisi judul kolom), atau pilih file CSV / Excel (.xlsx). Aplikasi menghitung rata-rata per hari kerja untuk tiap rekening sebagai usulan. Rata-rata masuk ke isian di atas lewat tombol "Terapkan". Data harian disimpan ke Sheet (tab Riwayat) hanya kalau lu tekan "Simpan riwayat harian", lalu bisa dilihat per tanggal di panel Riwayat harian.</p>
             <textarea id="impText" spellcheck="false" placeholder="Tanggal&#9;Kas Toko Masuk&#9;Kas Toko Keluar&#9;BRI Masuk&#9;BRI Keluar&#10;02/01/2026&#9;18.500.000&#9;6.200.000&#9;0&#9;12.000.000" aria-label="Data riwayat"></textarea>
-            <div class="row"><input type="file" id="impFile" accept=".csv,.tsv,.txt,text/csv,text/plain" aria-label="File CSV"><button class="btn" id="impRead" type="button">Baca data</button></div>
+            <div class="row"><input type="file" id="impFile" accept=".csv,.tsv,.txt,.xlsx,.xlsm,text/csv,text/plain" aria-label="File CSV atau Excel"><button class="btn" id="impRead" type="button">Baca data</button></div>
             <div class="err" id="impMsg" role="alert"></div>
             <div class="impm" id="impMap" hidden></div>
             <div id="impRes"></div>
@@ -353,18 +384,19 @@ function eventsInMonth(events,y,m,a,tgt){
 const MON={jan:0,feb:1,mar:2,apr:3,mei:4,may:4,jun:5,jul:6,agu:7,agt:7,aug:7,sep:8,okt:9,oct:9,nov:10,des:11,dec:11};
 function mkDay(y,mo,d){if(mo<1||mo>12||d<1||d>dim(y,mo-1))return null;return Math.round(Date.UTC(y,mo-1,d)/DAY)}
 function parseDate2(s){
-  s=String(s==null?'':s).trim();if(!s)return null;let m;
+  s=String(s==null?'':s).trim().replace(/^(senin|selasa|rabu|kamis|jumat|jum'at|sabtu|minggu|ahad|sen|sel|rab|kam|jum|sab|min|mon|tue|wed|thu|fri|sat|sun)[a-z']*\.?,?\s+/i,'');if(!s)return null;let m;
   if(m=/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(s))return mkDay(+m[1],+m[2],+m[3]);
   if(m=/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/.exec(s)){let y=+m[3];if(y<100)y+=2000;return mkDay(y,+m[2],+m[1])}
   if(m=/^(\d{1,2})[\s-]+([A-Za-z]+)\.?[\s-]+(\d{2,4})/.exec(s)){const mo=MON[m[2].slice(0,3).toLowerCase()];if(mo==null)return null;let y=+m[3];if(y<100)y+=2000;return mkDay(y,mo+1,+m[1])}
-  if(/^\d{5}$/.test(s)&&+s>30000&&+s<80000)return Math.round(Date.UTC(1899,11,30)/DAY)+ +s;
+  if(m=/^([A-Za-z]+)\.?\s+(\d{1,2}),?\s+(\d{4})/.exec(s)){const mo=MON[m[1].slice(0,3).toLowerCase()];if(mo==null)return null;return mkDay(+m[3],mo+1,+m[2])}
+  if(/^\d{5}(\.\d+)?$/.test(s)&&+s>30000&&+s<80000)return Math.round(Date.UTC(1899,11,30)/DAY)+Math.floor(+s);
   return null;
 }
 // Angka gaya Indonesia (1.250.000) maupun 1,250,000 atau 1250000. NaN kalau bukan angka. Kosong dan "-" = 0.
 function parseNum2(s){
-  s=String(s==null?'':s).trim();if(!s||s==='-'||s==='–')return 0;
+  s=String(s==null?'':s).trim();if(!s||/^[-–—]+$/.test(s))return 0;
+  s=s.replace(/[−–—]/g,'-').replace(/rp\.?/ig,'').replace(/\s/g,'').replace(/[,.]-+$/,'');
   let neg=false;if(/^\(.*\)$/.test(s)){neg=true;s=s.slice(1,-1)}
-  s=s.replace(/rp\.?/ig,'').replace(/\s/g,'');
   if(s[0]==='-'){neg=!neg;s=s.slice(1)}
   if(!/^[\d.,]+$/.test(s)||!/\d/.test(s))return NaN;
   const dots=(s.match(/\./g)||[]).length,commas=(s.match(/,/g)||[]).length;let v;
@@ -523,7 +555,7 @@ $('loginForm').addEventListener('submit',async ev=>{
   btn.disabled=false;btn.textContent='Masuk';
 });
 function logout(){
-  SESS=null;DIRTY=false;CONFLICT=null;lsDel(K.sess);lsDel(K.cache);ST=blank();VER=0;showLogin();
+  SESS=null;DIRTY=false;CONFLICT=null;HIST=[];HISTST='';lsDel(K.sess);lsDel(K.cache);ST=blank();VER=0;showLogin();
 }
 $('logout').addEventListener('click',()=>{
   if(DIRTY&&!$('logout').dataset.sure){const b=$('logout');b.dataset.sure='1';b.textContent='Yakin? Perubahan hilang';setTimeout(()=>{delete b.dataset.sure;b.textContent='Keluar'},4000);return}
@@ -539,6 +571,7 @@ async function loadData(silent){
     OFFLINE=false;SESS.peran=r.peran;lsSet(K.sess,SESS);
     if(silent&&r.version===VER&&!CONFLICT){BUSY=false;updateBar();return}
     applyServer(r);lsSet(K.cache,{data:r.data,version:r.version,oleh:r.oleh,pada:r.pada,at:Date.now()});
+    if(!silent||!HIST.length)histLoad();
   }catch(e){
     const c=lsGet(K.cache);
     if(c){OFFLINE=true;applyServer(c)}
@@ -949,7 +982,7 @@ function impRange(){
   const M=IMP;const ds=M.rows.slice(1).map(r=>parseDate2(r[M.dateCol])).filter(d=>d!=null);
   if(ds.length){M.min=Math.min(...ds);M.max=Math.max(...ds);M.from=M.min;M.to=M.max;const f=$('impFrom'),t=$('impTo');if(f)f.value=dayToIso(M.from);if(t)t.value=dayToIso(M.to)}
 }
-let IMPR=null;
+let IMPR=null,IMPB=null;
 function impCompute(){
   const M=IMP,box=$('impRes');if(!M)return;
   if(M.dateCol<0){box.replaceChildren(h('p',{class:'small muted',text:'Pilih kolom tanggal.'}));return}
@@ -974,7 +1007,10 @@ function impCompute(){
     const ex=x.exIn.map(e=>({k:'masuk',e:e})).concat(x.exOut.map(e=>({k:'keluar',e:e})));
     if(ex.length)notes.push(['w','"'+a.n+'": '+ex.length+' nilai harian dikeluarkan dari rata-rata (di atas batas): '+ex.slice(0,6).map(o=>dShort(o.e.d).replace(/ \d{4}$/,'')+' '+o.k+' '+short(o.e.amt)).join(', ')+(ex.length>6?' dan '+(ex.length-6)+' lainnya':'')+'. Kalau masih akan terjadi, masukkan sebagai kejadian.']);
   });
+  IMPB=b;
   const apply=h('button',{class:'btn pri',type:'button',text:'Terapkan ke arus kas rutin',disabled:!anyData});
+  const saveH=h('button',{class:'btn',type:'button',text:'Simpan riwayat harian',disabled:!anyData});
+  saveH.addEventListener('click',()=>histSaveImport(box,saveH));
   apply.addEventListener('click',()=>{
     let n=0;box.querySelectorAll('input[type=checkbox]:checked').forEach(c=>{const i=+c.dataset.i,x=IMPR.res[i];if(!x||!x.has)return;ST.accounts[i].fi.amt=x.avgIn;ST.accounts[i].fo.amt=x.avgOut;n++});
     if(!n)return;touch();renderFlows();calc();impCompute();
@@ -982,15 +1018,193 @@ function impCompute(){
     box.append(h('p',{class:'small',text:'Diterapkan ke '+n+' rekening. Cek angkanya di atas, lalu tekan Simpan semua.'}));
   });
   box.replaceChildren(h('p',{class:'small muted',text:dShort(M.from)+' sampai '+dShort(M.to)+': '+r.wd+' hari kerja (Senin–Sabtu).'}),h('div',{class:'tw'},h('table',{class:'imprt'},head,body)),
-    h('div',{class:'impn'},...notes.map(([c,t])=>h('span',{class:c,text:t}))),apply);
+    h('div',{class:'impn'},...notes.map(([c,t])=>h('span',{class:c,text:t}))),h('div',{class:'row'},apply,saveH));
 }
 $('impRead').addEventListener('click',impRead);
 $('impText').addEventListener('input',()=>{if(IMP)impReset()});
-$('impFile').addEventListener('change',e=>{
-  const f=e.target.files&&e.target.files[0];if(!f)return;const msg=$('impMsg');
-  if(/\.(xlsx?|xlsm|ods)$/i.test(f.name)){msg.textContent='File Excel belum bisa dibaca langsung. Simpan sebagai CSV, atau salin sel dari Excel lalu tempel di kotak.';e.target.value='';return}
+// Baca .xlsx tanpa pustaka: file xlsx = zip berisi XML. Pakai DecompressionStream bawaan browser.
+async function unzipEntry(u,ent){
+  const dv=new DataView(u.buffer,u.byteOffset,u.byteLength),n=dv.getUint16(ent.off+26,true),e=dv.getUint16(ent.off+28,true);
+  const raw=u.subarray(ent.off+30+n+e,ent.off+30+n+e+ent.csize);
+  if(ent.method===0)return new TextDecoder().decode(raw);
+  if(ent.method!==8||typeof DecompressionStream==='undefined')throw new Error('nodecomp');
+  const ab=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer();
+  return new TextDecoder().decode(ab);
+}
+function zipList(u){
+  const dv=new DataView(u.buffer,u.byteOffset,u.byteLength);let i=u.length-22;
+  while(i>=0&&dv.getUint32(i,true)!==0x06054b50)i--;
+  if(i<0)throw new Error('notzip');
+  const cnt=dv.getUint16(i+10,true);let p=dv.getUint32(i+16,true);const map={};
+  for(let k=0;k<cnt;k++){
+    if(dv.getUint32(p,true)!==0x02014b50)break;
+    const nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true);
+    const name=new TextDecoder().decode(u.subarray(p+46,p+46+nl));
+    map[name]={method:dv.getUint16(p+10,true),csize:dv.getUint32(p+20,true),off:dv.getUint32(p+42,true)};
+    p+=46+nl+el+cl;
+  }
+  return map;
+}
+function xmlDoc(t){return new DOMParser().parseFromString(t,'application/xml')}
+function colIdx(ref){const m=/^([A-Z]+)/.exec(ref||'');if(!m)return -1;let n=0;for(const ch of m[1])n=n*26+ch.charCodeAt(0)-64;return n-1}
+async function readXlsx(buf){
+  const u=new Uint8Array(buf),z=zipList(u),get=async nm=>z[nm]?unzipEntry(u,z[nm]):null;
+  const shared=[];const ss=await get('xl/sharedStrings.xml');
+  if(ss)xmlDoc(ss).querySelectorAll('si').forEach(si=>{let t='';si.querySelectorAll('t').forEach(x=>{if(!x.closest('rPh'))t+=x.textContent});shared.push(t)});
+  const wb=xmlDoc(await get('xl/workbook.xml')||'<x/>'),rels=xmlDoc(await get('xl/_rels/workbook.xml.rels')||'<x/>'),tg={};
+  rels.querySelectorAll('Relationship').forEach(r=>{tg[r.getAttribute('Id')]=r.getAttribute('Target')});
+  const out=[];const shs=[...wb.querySelectorAll('sheet')];
+  for(let k=0;k<shs.length;k++){
+    const rid=shs[k].getAttribute('r:id')||shs[k].getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id');
+    let path=tg[rid]||('worksheets/sheet'+(k+1)+'.xml');path=path.replace(/^\//,'').replace(/^xl\//,'');
+    const xml=await get('xl/'+path);if(!xml)continue;
+    const rows=[];
+    xmlDoc(xml).querySelectorAll('sheetData > row').forEach(r=>{
+      const arr=[];let nxt=0;
+      r.querySelectorAll(':scope > c').forEach(c=>{
+        let ci=colIdx(c.getAttribute('r'));if(ci<0)ci=nxt;nxt=ci+1;
+        const t=c.getAttribute('t'),v=c.querySelector('v');let val='';
+        if(t==='s')val=shared[+(v?v.textContent:-1)]||'';
+        else if(t==='inlineStr')val=[...c.querySelectorAll('t')].map(x=>x.textContent).join('');
+        else if(v){val=v.textContent;if(t!=='str'&&t!=='b'&&t!=='e'&&isFinite(+val)&&val!==''){const x=+val;val=String(Number.isInteger(x)?x:(x>=30000&&x<80000?Math.floor(x):Math.round(x)))}}
+        while(arr.length<ci)arr.push('');arr[ci]=String(val).replace(/[\t\r\n"]+/g,' ').trim();
+      });
+      const rn=+(r.getAttribute('r')||0);while(rn>0&&rows.length<rn-1)rows.push([]);rows.push(arr);
+    });
+    out.push({name:shs[k].getAttribute('name')||('Sheet'+(k+1)),rows:rows.filter(a=>a.some(x=>x!==''))});
+  }
+  return out;
+}
+$('impFile').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;const msg=$('impMsg');msg.textContent='';msg.className='err';
+  if(/\.(xls|ods)$/i.test(f.name)){msg.textContent='Format .xls lama dan .ods tidak bisa dibaca. Simpan ulang sebagai .xlsx atau CSV, atau salin sel lalu tempel di kotak.';e.target.value='';return}
   if(f.size>5*1024*1024){msg.textContent='File terlalu besar (maksimal 5 MB).';e.target.value='';return}
-  const fr=new FileReader();fr.onload=()=>{$('impText').value=String(fr.result||'');impRead()};fr.onerror=()=>{msg.textContent='File tidak bisa dibaca.'};fr.readAsText(f);
+  const fr=new FileReader();fr.onerror=()=>{msg.textContent='File tidak bisa dibaca.'};
+  if(/\.(xlsx|xlsm)$/i.test(f.name)){
+    fr.onload=async()=>{
+      try{
+        const sh=(await readXlsx(fr.result)).filter(x=>x.rows.length>1).sort((a,b)=>b.rows.length-a.rows.length);
+        if(!sh.length){msg.textContent='Tidak ada sheet dengan data (butuh minimal baris judul dan satu baris isi).';return}
+        const w=Math.max(...sh[0].rows.map(r=>r.length));
+        $('impText').value=sh[0].rows.map(r=>{const c=r.slice();while(c.length<w)c.push('');return c.join('\t')}).join('\n');
+        impRead();
+        if(!msg.textContent){msg.className='err ok';msg.textContent='Dibaca dari sheet "'+sh[0].name+'" ('+(sh[0].rows.length-1)+' baris data).'+(sh.length>1?' File punya '+sh.length+' sheet; yang dipakai sheet dengan baris terbanyak. Kalau salah, salin sel dari sheet yang benar lalu tempel.':'')}
+      }catch(err){msg.textContent=err&&err.message==='nodecomp'?'Browser ini tidak bisa membuka .xlsx. Simpan sebagai CSV, atau salin sel lalu tempel di kotak.':'File .xlsx tidak bisa dibaca. Simpan sebagai CSV, atau salin sel lalu tempel di kotak.'}
+    };
+    fr.readAsArrayBuffer(f);return;
+  }
+  fr.onload=()=>{const u=new Uint8Array(fr.result);let enc='utf-8';if(u[0]===0xFF&&u[1]===0xFE)enc='utf-16le';else if(u[0]===0xFE&&u[1]===0xFF)enc='utf-16be';else if(u.length>3&&u[1]===0&&u[3]===0)enc='utf-16le';
+    let t;try{t=new TextDecoder(enc).decode(u)}catch(_){t=''}$('impText').value=t;impRead()};
+  fr.readAsArrayBuffer(f);
+});
+
+
+/* ---------- riwayat harian (tersimpan di tab Riwayat) ---------- */
+let HIST=[],HISTST='',HISTLOAD=false;
+const HARI=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+async function histLoad(){
+  if(!SESS||!CONFIGURED)return;HISTLOAD=true;renderHist();
+  try{
+    const r=await api('riwayat_get',{token:SESS.token});
+    if(r.ok){HIST=Array.isArray(r.rows)?r.rows:[];HISTST=''}
+    else if(r.error==='aksi')HISTST='old';
+    else if(r.error!=='sesi')HISTST='err';
+  }catch(e){HISTST='err'}
+  HISTLOAD=false;renderHist();
+}
+function histAccName(id){
+  const a=ST.accounts.find(x=>x.id===id);if(a)return a.n;
+  const r=HIST.find(x=>x.a===id);return (r&&r.n?r.n:id)+' (rekening dihapus)';
+}
+function histAccList(){
+  const ids=ST.accounts.map(a=>a.id);HIST.forEach(r=>{if(!ids.includes(r.a))ids.push(r.a)});
+  return ids.map(id=>({id:id,n:histAccName(id)}));
+}
+function renderHist(){
+  const mon=$('hMon'),acc=$('hAcc'),tbl=$('hTbl'),note=$('hNote');
+  const ed=isEditor()&&!OFFLINE;$('hDel').hidden=!ed;
+  if(HISTST==='old'){$('hSub').textContent='';mon.replaceChildren();acc.replaceChildren();tbl.replaceChildren();note.textContent='Backend Apps Script belum diperbarui. Tempel Code.gs terbaru, lalu Deploy > Manage deployments > edit > New version (lihat README).';note.className='small miss';return}
+  note.className='small muted';
+  if(HISTST==='err'&&!HIST.length){$('hSub').textContent='';tbl.replaceChildren();note.textContent='Riwayat tidak bisa dimuat. Tekan Segarkan untuk mencoba lagi.';note.className='small miss';return}
+  if(!HIST.length){
+    $('hSub').textContent=HISTLOAD?'Memuat…':'';mon.replaceChildren();acc.replaceChildren();tbl.replaceChildren();
+    note.textContent=HISTLOAD?'':(ed?'Belum ada riwayat tersimpan. Impor data di panel Arus kas rutin, lalu tekan "Simpan riwayat harian".':'Belum ada riwayat tersimpan.');return}
+  const months=[...new Set(HIST.map(r=>r.d.slice(0,7)))].sort().reverse();
+  const keepM=mon.value,keepA=acc.value;
+  mon.replaceChildren(...months.map(m=>h('option',{value:m,text:MSL[+m.slice(5)-1]+' '+m.slice(0,4)})));
+  mon.value=months.includes(keepM)?keepM:months[0];
+  const accs=histAccList();
+  acc.replaceChildren(h('option',{value:'',text:'Semua rekening'}),...accs.map(a=>h('option',{value:a.id,text:a.n})));
+  acc.value=accs.some(a=>a.id===keepA)?keepA:'';
+  const dd=$('hDelAcc'),keepD=dd.value;dd.replaceChildren(h('option',{value:'',text:'Semua rekening'}),...accs.map(a=>h('option',{value:a.id,text:a.n})));dd.value=accs.some(a=>a.id===keepD)?keepD:'';
+  $('hDetWrap').hidden=!!acc.value;
+  drawHist();
+}
+function drawHist(){
+  const m=$('hMon').value,aid=$('hAcc').value,det=$('hDet').checked&&!aid,tbl=$('hTbl'),note=$('hNote');
+  if(!m)return;
+  const all=HIST.map(r=>r.d).sort(),minD=toDay(all[0]),maxD=toDay(all[all.length-1]);
+  const y=+m.slice(0,4),mo=+m.slice(5)-1,first=Math.max(toDay(m+'-01'),minD),last=Math.min(toDay(m+'-'+String(dim(y,mo)).padStart(2,'0')),maxD);
+  const byDay={};HIST.forEach(r=>{if(r.d.slice(0,7)===m)(byDay[r.d]=byDay[r.d]||[]).push(r)});
+  const num=v=>h('td',{class:'num'+(v<0?' neg':''),text:v?f0.format(v):'-'});
+  const body=h('tbody');let ti=0,to=0,wd=0,gaps=0,nd=0;
+  for(let d=first;d<=last;d++){
+    const iso=dayToIso(d),dow=new Date(d*DAY).getUTCDay(),rows=byDay[iso]||[],work=dow!==0;
+    if(work)wd++;
+    if(!rows.length){
+      if(work){gaps++;body.append(h('tr',null,h('td',{text:HARI[dow]+' '+(+iso.slice(8))}),h('td',{class:'gap',colspan:'3',text:'belum ada data'})))}
+      continue;
+    }
+    const sel=aid?rows.filter(r=>r.a===aid):rows,i=sel.reduce((t,r)=>t+r.i,0),o=sel.reduce((t,r)=>t+r.o,0);
+    if(aid&&!sel.length){if(work)body.append(h('tr',null,h('td',{text:HARI[dow]+' '+(+iso.slice(8))}),h('td',{class:'mut',colspan:'3',text:'tidak ada catatan'})));continue}
+    nd++;ti+=i;to+=o;
+    const sub=det&&rows.length>1?h('span',{class:'sb',text:rows.slice().sort((a,b)=>a.a<b.a?-1:1).map(r=>histAccName(r.a)+' +'+short(r.i)+' −'+short(r.o)).join(' · ')}):
+              det&&rows.length===1?h('span',{class:'sb',text:histAccName(rows[0].a)}):null;
+    body.append(h('tr',{class:work?null:'sun'},h('td',null,HARI[dow]+' '+(+iso.slice(8)),sub),num(i),num(o),num(i-o)));
+  }
+  const head=h('thead',null,h('tr',null,h('th',{text:'Tanggal'}),h('th',{text:'Masuk'}),h('th',{text:'Keluar'}),h('th',{text:'Selisih'})));
+  const foot=h('tfoot',null,h('tr',null,h('td',{text:'Total'}),num(ti),num(to),num(ti-to)));
+  tbl.replaceChildren(head,body,foot);
+  $('hSub').textContent=HIST.length+' catatan · '+dShort(minD)+' sampai '+dShort(maxD);
+  note.className='small muted';
+  note.textContent=wd?'Rata-rata per hari kerja ('+wd+' hari, hari tanpa data dihitung nol): masuk '+f0.format(Math.round(ti/wd))+', keluar '+f0.format(Math.round(to/wd))+'.':'';
+  if(gaps)note.append(wd?' ':'',h('span',{class:'miss',text:gaps+' hari kerja belum ada datanya.'}));
+  const dari=$('hDari'),sampai=$('hSampai');if(!dari.value||!sampai.value){dari.value=dayToIso(first);sampai.value=dayToIso(last)}
+}
+async function histSaveImport(box,btn){
+  const M=IMP,b=IMPB,say=(t,bad)=>{const old=box.querySelector('.hsay');if(old)old.remove();box.append(h('p',{class:'small hsay'+(bad?' miss':''),text:t}))};
+  if(!M||!b)return;
+  if(OFFLINE||!isEditor()){say('Hanya editor yang online yang bisa menyimpan riwayat.',true);return}
+  if(BUSY||DIRTY||EMPTY||CONFLICT){say('Tekan "Simpan semua" dulu supaya rekening punya ID tetap di Sheet, lalu simpan riwayatnya.',true);return}
+  const recs=b.recs.filter(r=>r.d>=M.from&&r.d<=M.to&&ST.accounts[r.a]).map(r=>({d:dayToIso(r.d),a:ST.accounts[r.a].id,n:ST.accounts[r.a].n,i:r.i,o:r.o}));
+  if(!recs.length){say('Tidak ada catatan di rentang tanggal ini untuk rekening yang terpetakan.',true);return}
+  btn.disabled=true;say('Menyimpan '+recs.length+' catatan…');
+  try{
+    const r=await api('riwayat_save',{token:SESS.token,recs:recs});
+    if(r.ok){say('Riwayat tersimpan: '+r.diterima+' catatan ('+dShort(M.from)+' sampai '+dShort(M.to)+'). Total di Sheet: '+r.total+'. Lihat di panel Riwayat harian.');$('hMon').value=dayToIso(M.to).slice(0,7);await histLoad();$('hMon').value=dayToIso(M.to).slice(0,7);drawHist()}
+    else if(r.error==='aksi'){say('Backend Apps Script belum diperbarui. Tempel Code.gs terbaru dan deploy versi baru (lihat README).',true)}
+    else if(r.error==='terlalu_besar'){say('Riwayat melebihi batas 20.000 baris. Hapus riwayat lama dulu.',true)}
+    else if(r.error==='sesi'){say('Sesi habis. Keluar lalu masuk lagi.',true)}
+    else say('Gagal menyimpan riwayat ('+r.error+').',true);
+  }catch(e){say('Tidak bisa terhubung. Riwayat belum tersimpan.',true)}
+  btn.disabled=false;
+}
+$('hMon').addEventListener('change',()=>{$('hDari').value='';$('hSampai').value='';drawHist()});
+$('hAcc').addEventListener('change',()=>{$('hDetWrap').hidden=!!$('hAcc').value;drawHist()});
+$('hDet').addEventListener('change',drawHist);
+$('hDelBtn').addEventListener('click',async()=>{
+  const b=$('hDelBtn'),msg=$('hDelMsg'),dari=$('hDari').value,sampai=$('hSampai').value,a=$('hDelAcc').value;msg.textContent='';
+  if(!isoOk(dari)||!isoOk(sampai)||dari>sampai){msg.textContent='Isi rentang tanggal dengan benar.';return}
+  const n=HIST.filter(r=>r.d>=dari&&r.d<=sampai&&(!a||r.a===a)).length;
+  if(!n){msg.textContent='Tidak ada catatan di rentang itu.';return}
+  if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Yakin hapus '+n+' catatan?';setTimeout(()=>{delete b.dataset.sure;b.textContent='Hapus'},4000);return}
+  delete b.dataset.sure;b.textContent='Hapus';b.disabled=true;
+  try{
+    const r=await api('riwayat_hapus',{token:SESS.token,dari:dari,sampai:sampai,a:a});
+    if(r.ok){msg.textContent='';await histLoad();$('hDelMsg').textContent=r.dihapus+' catatan dihapus.'}
+    else msg.textContent=r.error==='aksi'?'Backend belum diperbarui.':'Gagal menghapus ('+r.error+').';
+  }catch(e){msg.textContent='Tidak bisa terhubung.'}
+  b.disabled=false;
 });
 
 function setTarget(v){TARGET=v||'';if(v)lsSet(K.target,v);if(v)$('target').value=v;calc()}
