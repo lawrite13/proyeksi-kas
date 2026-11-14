@@ -435,7 +435,7 @@ function buildRecords(rows,cfg){
     const add=(a,dir,val)=>{
       if(a==null||a<0)return;const v=parseNum2(val);
       if(isNaN(v)){bad.cells++;return}if(!v)return;
-      const k=a+'|'+d,o=agg[k]||(agg[k]={a:a,d:d,i:0,o:0});if(dir==='in')o.i+=Math.abs(v);else o.o+=Math.abs(v);
+      const k=a+'|'+d,o=agg[k]||(agg[k]={a:a,d:d,i:0,o:0});if(dir==='in')o.i+=v;else o.o+=v;   // nilai negatif (koreksi/pembalikan) mengurangi, bukan menambah
     };
     if(cfg.mode==='long'){
       const a=cfg.valMap[row[cfg.accCol]];
@@ -1008,17 +1008,29 @@ function impCompute(){
     if(ex.length)notes.push(['w','"'+a.n+'": '+ex.length+' nilai harian dikeluarkan dari rata-rata (di atas batas): '+ex.slice(0,6).map(o=>dShort(o.e.d).replace(/ \d{4}$/,'')+' '+o.k+' '+short(o.e.amt)).join(', ')+(ex.length>6?' dan '+(ex.length-6)+' lainnya':'')+'. Kalau masih akan terjadi, masukkan sebagai kejadian.']);
   });
   IMPB=b;
-  const apply=h('button',{class:'btn pri',type:'button',text:'Terapkan ke arus kas rutin',disabled:!anyData});
-  const saveH=h('button',{class:'btn',type:'button',text:'Simpan riwayat harian',disabled:!anyData});
+  const apply=h('button',{class:'btn',type:'button',text:'Terapkan saja (belum disimpan)',disabled:!anyData});
+  const saveH=h('button',{class:'btn',type:'button',text:'Simpan riwayat saja',disabled:!anyData});
+  const both=h('button',{class:'btn pri',type:'button',text:'Terapkan + simpan semuanya',disabled:!anyData});
   saveH.addEventListener('click',()=>histSaveImport(box,saveH));
+  both.addEventListener('click',async()=>{
+    const say=(t,bad)=>{const old=box.querySelector('.hsay');if(old)old.remove();box.append(h('p',{class:'small hsay'+(bad?' miss':''),text:t}))};
+    if(OFFLINE||!isEditor()){say('Hanya editor yang online yang bisa menyimpan.',true);return}
+    if(CONFLICT){say('Ada konflik versi. Muat data terbaru dulu.',true);return}
+    both.disabled=true;say('Menerapkan rata-rata dan menyimpan…');
+    apply.click();
+    await saveNow();
+    if(DIRTY||CONFLICT||SAVEERR){say('Arus kas rutin belum tersimpan: '+(SAVEERR||'ada konflik/perubahan tertunda')+'. Riwayat tidak disimpan.',true);both.disabled=false;return}
+    await histSaveImport(box,saveH);
+    both.disabled=false;
+  });
   apply.addEventListener('click',()=>{
     let n=0;box.querySelectorAll('input[type=checkbox]:checked').forEach(c=>{const i=+c.dataset.i,x=IMPR.res[i];if(!x||!x.has)return;ST.accounts[i].fi.amt=x.avgIn;ST.accounts[i].fo.amt=x.avgOut;n++});
     if(!n)return;touch();renderFlows();calc();impCompute();
     $('impMsg').textContent='';$('impMsg').className='';
-    box.append(h('p',{class:'small',text:'Diterapkan ke '+n+' rekening. Cek angkanya di atas, lalu tekan Simpan semua.'}));
+    box.append(h('p',{class:'small',text:'Diterapkan ke '+n+' rekening. Belum tersimpan sampai lu tekan Simpan semua.'}));
   });
   box.replaceChildren(h('p',{class:'small muted',text:dShort(M.from)+' sampai '+dShort(M.to)+': '+r.wd+' hari kerja (Senin–Sabtu).'}),h('div',{class:'tw'},h('table',{class:'imprt'},head,body)),
-    h('div',{class:'impn'},...notes.map(([c,t])=>h('span',{class:c,text:t}))),h('div',{class:'row'},apply,saveH));
+    h('div',{class:'impn'},...notes.map(([c,t])=>h('span',{class:c,text:t}))),h('div',{class:'row'},both,apply,saveH));
 }
 $('impRead').addEventListener('click',impRead);
 $('impText').addEventListener('input',()=>{if(IMP)impReset()});

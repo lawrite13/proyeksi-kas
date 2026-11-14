@@ -1,6 +1,6 @@
 // Service worker: menyimpan kerangka aplikasi supaya terbuka cepat dan tetap tampil saat offline.
 // Data keuangan tidak pernah disimpan di sini; permintaan ke API tidak disentuh.
-const CACHE = 'proyeksi-kas-v4';
+const CACHE = 'proyeksi-kas-v5';
 const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
